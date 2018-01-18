@@ -4,3 +4,4 @@
 *.SUNet
 *.pyc
 .env/*
+enwik9*
