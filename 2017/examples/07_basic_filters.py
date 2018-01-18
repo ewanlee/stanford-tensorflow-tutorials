@@ -26,6 +26,7 @@ cs20si.stanford.edu
 """
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+os.environ['CUDA_VISIBLE_DEVICES']='2'
 
 import sys
 sys.path.append('..')
@@ -40,7 +41,7 @@ FILENAME = 'data/friday.jpg'
 
 def read_one_image(filename):
     """ This is just to demonstrate how to open an image in TensorFlow,
-    but it's actually a lot easier to use Pillow 
+    but it's actually a lot easier to use Pillow
     """
     filename_queue = tf.train.string_input_producer([filename])
     image_reader = tf.WholeFileReader()
@@ -73,7 +74,7 @@ def show_images(images, rgb=True):
         plt.subplot(gs[0, i])
         if rgb:
             plt.imshow(image)
-        else: 
+        else:
             image = image.reshape(image.shape[0], image.shape[1])
             plt.imshow(image, cmap='gray')
         plt.axis('off')
@@ -82,11 +83,17 @@ def show_images(images, rgb=True):
 def main():
     rgb = False
     if rgb:
-        kernels_list = [kernels.BLUR_FILTER_RGB, kernels.SHARPEN_FILTER_RGB, kernels.EDGE_FILTER_RGB, 
-                    kernels.TOP_SOBEL_RGB, kernels.EMBOSS_FILTER_RGB]
+        kernels_list = [kernels.BLUR_FILTER_RGB,
+                kernels.SHARPEN_FILTER_RGB,
+                kernels.EDGE_FILTER_RGB,
+                kernels.TOP_SOBEL_RGB,
+                kernels.EMBOSS_FILTER_RGB]
     else:
-        kernels_list = [kernels.BLUR_FILTER, kernels.SHARPEN_FILTER, kernels.EDGE_FILTER, 
-                    kernels.TOP_SOBEL, kernels.EMBOSS_FILTER]
+        kernels_list = [kernels.BLUR_FILTER,
+                kernels.SHARPEN_FILTER,
+                kernels.EDGE_FILTER,
+                kernels.TOP_SOBEL,
+                kernels.EMBOSS_FILTER]
 
     image = read_one_image(FILENAME)
     if not rgb:
