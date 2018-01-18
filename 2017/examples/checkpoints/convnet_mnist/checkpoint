@@ -1,6 +1,0 @@
-model_checkpoint_path: "mnist-convnet-21449"
-all_model_checkpoint_paths: "mnist-convnet-21409"
-all_model_checkpoint_paths: "mnist-convnet-21419"
-all_model_checkpoint_paths: "mnist-convnet-21429"
-all_model_checkpoint_paths: "mnist-convnet-21439"
-all_model_checkpoint_paths: "mnist-convnet-21449"
