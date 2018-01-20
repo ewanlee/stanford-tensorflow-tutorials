@@ -2,11 +2,12 @@
 Created by Danijar Hafner (danijar.com), edited by Chip Huyen
 for the class CS 20SI: "TensorFlow for Deep Learning Research"
 
-Based on Andrej Karpathy's blog: 
+Based on Andrej Karpathy's blog:
 http://karpathy.github.io/2015/05/21/rnn-effectiveness/
 """
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+os.environ['CUDA_VISIBLE_DEVICES']='2'
 import sys
 sys.path.append('..')
 
@@ -24,6 +25,7 @@ SKIP_STEP = 40
 TEMPRATURE = 0.7
 LR = 0.003
 LEN_GENERATED = 300
+NUM_EPOCHS = 10
 
 def vocab_encode(text, vocab):
     return [vocab.index(x) + 1 for x in text if x in vocab]
@@ -67,7 +69,7 @@ def create_model(seq, temp, vocab, hidden=HIDDEN_SIZE):
     loss = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(logits=logits[:, :-1], labels=seq[:, 1:]))
     # sample the next character from Maxwell-Boltzmann Distribution with temperature temp
     # it works equally well without tf.exp
-    sample = tf.multinomial(tf.exp(logits[:, -1] / temp), 1)[:, 0] 
+    sample = tf.multinomial(tf.exp(logits[:, -1] / temp), 1)[:, 0]
     return loss, sample, in_state, out_state
 
 def training(vocab, seq, loss, optimizer, global_step, temp, sample, in_state, out_state):
@@ -76,20 +78,22 @@ def training(vocab, seq, loss, optimizer, global_step, temp, sample, in_state, o
     with tf.Session() as sess:
         writer = tf.summary.FileWriter('graphs/gist', sess.graph)
         sess.run(tf.global_variables_initializer())
-        
+
         ckpt = tf.train.get_checkpoint_state(os.path.dirname('checkpoints/arvix/checkpoint'))
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
-        
+
         iteration = global_step.eval()
-        for batch in read_batch(read_data(DATA_PATH, vocab)):
-            batch_loss, _ = sess.run([loss, optimizer], {seq: batch})
-            if (iteration + 1) % SKIP_STEP == 0:
-                print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
-                online_inference(sess, vocab, seq, sample, temp, in_state, out_state)
-                start = time.time()
-                saver.save(sess, 'checkpoints/arvix/char-rnn', iteration)
-            iteration += 1
+        for epoch in range(NUM_EPOCHS):
+            for batch in read_batch(read_data(DATA_PATH, vocab)):
+                batch_loss, _ = sess.run([loss, optimizer], {seq: batch})
+                if (iteration + 1) % SKIP_STEP == 0:
+                    print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
+                    # online_inference(sess, vocab, seq, sample, temp, in_state, out_state)
+                    start = time.time()
+                    saver.save(sess, 'checkpoints/arvix/char-rnn', iteration)
+                iteration += 1
+        online_inference(sess, vocab, seq, sample, temp, in_state, out_state)
 
 def online_inference(sess, vocab, seq, sample, temp, in_state, out_state, seed='T'):
     """ Generate sequence one character at a time, based on the previous character
@@ -118,6 +122,6 @@ def main():
     utils.make_dir('checkpoints')
     utils.make_dir('checkpoints/arvix')
     training(vocab, seq, loss, optimizer, global_step, temp, sample, in_state, out_state)
-    
+
 if __name__ == '__main__':
     main()
