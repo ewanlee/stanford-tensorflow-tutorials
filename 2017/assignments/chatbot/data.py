@@ -1,7 +1,7 @@
 """ A neural chatbot using sequence to sequence model with
-attentional decoder. 
+attentional decoder.
 
-This is based on Google Translate Tensorflow model 
+This is based on Google Translate Tensorflow model
 https://github.com/tensorflow/models/blob/master/tutorials/rnn/translate/
 
 Sequence to sequence model by Cho et al.(2014)
@@ -66,10 +66,10 @@ def question_answers(id2line, convos):
 def prepare_dataset(questions, answers):
     # create path to store all the train & test encoder & decoder
     make_dir(config.PROCESSED_PATH)
-    
+
     # random convos to create the test set
     test_ids = random.sample([i for i in range(len(questions))],config.TESTSET_SIZE)
-    
+
     filenames = ['train.enc', 'train.dec', 'test.enc', 'test.dec']
     files = []
     for filename in filenames:
@@ -129,7 +129,7 @@ def build_vocab(filename, normalize_digits=True):
         f.write('<pad>' + '\n')
         f.write('<unk>' + '\n')
         f.write('<s>' + '\n')
-        f.write('<\s>' + '\n') 
+        f.write('<\s>' + '\n')
         index = 4
         for word in sorted_vocab:
             if vocab[word] < config.THRESHOLD:
@@ -160,7 +160,7 @@ def token2id(data, mode):
     _, vocab = load_vocab(os.path.join(config.PROCESSED_PATH, vocab_path))
     in_file = open(os.path.join(config.PROCESSED_PATH, in_path), 'rb')
     out_file = open(os.path.join(config.PROCESSED_PATH, out_path), 'wb')
-    
+
     lines = in_file.read().splitlines()
     for line in lines:
         if mode == 'dec': # we only care about '<s>' and </s> in encoder
@@ -200,7 +200,8 @@ def load_data(enc_filename, dec_filename, max_training_size=None):
             print("Bucketing conversation number", i)
         encode_ids = [int(id_) for id_ in encode.split()]
         decode_ids = [int(id_) for id_ in decode.split()]
-        for bucket_id, (encode_max_size, decode_max_size) in enumerate(config.BUCKETS):
+        for bucket_id, (encode_max_size, decode_max_size) in enumerate(
+                config.BUCKETS):
             if len(encode_ids) <= encode_max_size and len(decode_ids) <= decode_max_size:
                 data_buckets[bucket_id].append([encode_ids, decode_ids])
                 break

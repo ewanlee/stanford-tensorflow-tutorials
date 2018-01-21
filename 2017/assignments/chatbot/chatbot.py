@@ -1,7 +1,7 @@
 """ A neural chatbot using sequence to sequence model with
-attentional decoder. 
+attentional decoder.
 
-This is based on Google Translate Tensorflow model 
+This is based on Google Translate Tensorflow model
 https://github.com/tensorflow/models/blob/master/tutorials/rnn/translate/
 
 Sequence to sequence model by Cho et al.(2014)
@@ -20,6 +20,7 @@ from __future__ import print_function
 import argparse
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+os.environ['CUDA_VISIBLE_DEVICES']='2'
 import random
 import sys
 import time
@@ -87,7 +88,7 @@ def run_step(sess, model, encoder_inputs, decoder_inputs, decoder_masks, bucket_
 
 def _get_buckets():
     """ Load the dataset into buckets based on their lengths.
-    train_buckets_scale is the inverval that'll help us 
+    train_buckets_scale is the inverval that'll help us
     choose a random bucket later on.
     """
     test_buckets = data.load_data('test_ids.enc', 'test_ids.dec')
@@ -123,10 +124,10 @@ def _eval_test_set(sess, model, test_buckets):
             print("  Test: empty bucket %d" % (bucket_id))
             continue
         start = time.time()
-        encoder_inputs, decoder_inputs, decoder_masks = data.get_batch(test_buckets[bucket_id], 
+        encoder_inputs, decoder_inputs, decoder_masks = data.get_batch(test_buckets[bucket_id],
                                                                         bucket_id,
                                                                         batch_size=config.BATCH_SIZE)
-        _, step_loss, _ = run_step(sess, model, encoder_inputs, decoder_inputs, 
+        _, step_loss, _ = run_step(sess, model, encoder_inputs, decoder_inputs,
                                    decoder_masks, bucket_id, True)
         print('Test bucket {}: loss {}, time {}'.format(bucket_id, step_loss, time.time() - start))
 
@@ -149,7 +150,7 @@ def train():
         while True:
             skip_step = _get_skip_step(iteration)
             bucket_id = _get_random_bucket(train_buckets_scale)
-            encoder_inputs, decoder_inputs, decoder_masks = data.get_batch(data_buckets[bucket_id], 
+            encoder_inputs, decoder_inputs, decoder_masks = data.get_batch(data_buckets[bucket_id],
                                                                            bucket_id,
                                                                            batch_size=config.BATCH_SIZE)
             start = time.time()
@@ -183,7 +184,7 @@ def _construct_response(output_logits, inv_dec_vocab):
     """ Construct a response to the user's encoder input.
     @output_logits: the outputs from sequence to sequence wrapper.
     output_logits is decoder_size np array, each of dim 1 x DEC_VOCAB
-    
+
     This is a greedy decoder - outputs are just argmaxes of output_logits.
     """
     print(output_logits[0])
@@ -228,7 +229,7 @@ def chat():
             # Which bucket does it belong to?
             bucket_id = _find_right_bucket(len(token_ids))
             # Get a 1-element batch to feed the sentence to the model.
-            encoder_inputs, decoder_inputs, decoder_masks = data.get_batch([(token_ids, [])], 
+            encoder_inputs, decoder_inputs, decoder_masks = data.get_batch([(token_ids, [])],
                                                                             bucket_id,
                                                                             batch_size=1)
             # Get output logits for the sentence.
